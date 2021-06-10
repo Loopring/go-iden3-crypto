@@ -2,16 +2,17 @@ package poseidon
 
 import (
 	"errors"
-	"fmt"
+	// "fmt"
 	"math/big"
 
 	"github.com/iden3/go-iden3-crypto/ff"
 	"github.com/iden3/go-iden3-crypto/utils"
 )
 
-const NROUNDSF = 8 //nolint:golint
+const NROUNDSF = 6 //nolint:golint
 
-var NROUNDSP = []int{56, 57, 56, 60, 60, 63, 64, 63} //nolint:golint
+// For loopring only.
+var NROUNDSP = 53
 
 func zero() *ff.Element {
 	return ff.NewElement()
@@ -20,7 +21,7 @@ func zero() *ff.Element {
 // ark computes Add-Round Key, from the paper https://eprint.iacr.org/2019/458.pdf
 func ark(state []*ff.Element, c []*ff.Element, it int) {
 	for i := 0; i < len(state); i++ {
-		state[i].Add(state[i], c[it+i])
+		state[i].Add(state[i], c[it])
 	}
 }
 
@@ -56,19 +57,19 @@ func mix(state []*ff.Element, newState []*ff.Element, m [][]*ff.Element) {
 // Hash computes the Poseidon hash for the given inputs
 func Hash(inpBI []*big.Int) (*big.Int, error) {
 	t := len(inpBI) + 1
-	if len(inpBI) == 0 || len(inpBI) >= len(NROUNDSP)-1 {
-		return nil, fmt.Errorf("invalid inputs length %d, max %d", len(inpBI), len(NROUNDSP)-1)
-	}
+	// if len(inpBI) == 0 || len(inpBI) >= len(NROUNDSP)-1 {
+	// 	return nil, fmt.Errorf("invalid inputs length %d, max %d", len(inpBI), len(NROUNDSP)-1)
+	// }
 	if !utils.CheckBigIntArrayInField(inpBI[:]) {
 		return nil, errors.New("inputs values not inside Finite Field")
 	}
 	inp := utils.BigIntArrayToElementArray(inpBI[:])
 	state := make([]*ff.Element, t)
-	state[0] = zero()
-	copy(state[1:], inp[:])
+	state[t-1] = zero()
+	copy(state[:t], inp[:])
 
 	nRoundsF := NROUNDSF
-	nRoundsP := NROUNDSP[t-2]
+	nRoundsP := NROUNDSP // [t-2]
 
 	newState := make([]*ff.Element, t)
 	for i := 0; i < t; i++ {
@@ -77,9 +78,9 @@ func Hash(inpBI []*big.Int) (*big.Int, error) {
 
 	// ARK --> SBox --> M, https://eprint.iacr.org/2019/458.pdf pag.5
 	for i := 0; i < nRoundsF+nRoundsP; i++ {
-		ark(state, c.c[t-2], i*t)
+		ark(state, c.c, i)
 		sbox(nRoundsF, nRoundsP, state, i)
-		mix(state, newState, c.m[t-2])
+		mix(state, newState, c.m[t])
 		state, newState = newState, state
 	}
 	rE := state[0]
