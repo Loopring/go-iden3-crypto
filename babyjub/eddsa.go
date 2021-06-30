@@ -46,12 +46,12 @@ func (k *PrivateKey) Scalar() *PrivKeyScalar {
 // SkToBigInt converts a private key into the *big.Int value following the
 // EdDSA standard, and using blake-512 hash
 func SkToBigInt(k *PrivateKey) *big.Int {
-	sBuf := Blake512(k[:])
-	sBuf32 := [32]byte{}
-	copy(sBuf32[:], sBuf[:32])
-	pruneBuffer(&sBuf32)
+	// sBuf := Blake512(k[:])
+	// sBuf32 := [32]byte{}
+	// copy(sBuf32[:], sBuf[:32])
+	// pruneBuffer(&sBuf32)
 	s := new(big.Int)
-	utils.SetBigIntFromLEBytes(s, sBuf32[:])
+	utils.SetBigIntFromLEBytes(s, k[:])
 	s.Rsh(s, 3)
 	return s
 }
@@ -303,7 +303,7 @@ func (k *PrivateKey) SignPoseidon(msg *big.Int) *Signature {
 		panic(err)
 	}
 
-	S := new(big.Int).Lsh(k.Scalar().BigInt(), 3)
+	S := k.Scalar().BigInt()
 	S = S.Mul(hm, S)
 	S.Add(r, S)
 	S.Mod(S, SubOrder) // S = r + hm * 8 * s
@@ -321,7 +321,7 @@ func (pk *PublicKey) VerifyPoseidon(msg *big.Int, sig *Signature) bool {
 	}
 
 	left := NewPoint().Mul(sig.S, B8) // left = s * 8 * B
-	r1 := big.NewInt(8)
+	r1 := big.NewInt(1)
 	r1.Mul(r1, hm)
 	right := NewPoint().Mul(r1, pk.Point())
 	rightProj := right.Projective()

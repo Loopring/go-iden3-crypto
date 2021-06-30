@@ -13,6 +13,8 @@ const NROUNDSF = 6 //nolint:golint
 
 // For loopring only.
 var NROUNDSP = 53
+// if input is in this map, use corresponding value as NROUNDSP
+var NROUNDSPMAP = map[int]int{6: 52}
 
 func zero() *ff.Element {
 	return ff.NewElement()
@@ -69,7 +71,11 @@ func Hash(inpBI []*big.Int) (*big.Int, error) {
 	copy(state[:t], inp[:])
 
 	nRoundsF := NROUNDSF
-	nRoundsP := NROUNDSP // [t-2]
+	var nRoundsP = NROUNDSP
+	nSp, ok := NROUNDSPMAP[t]
+	if ok {
+		nRoundsP = nSp
+	}
 
 	newState := make([]*ff.Element, t)
 	for i := 0; i < t; i++ {
