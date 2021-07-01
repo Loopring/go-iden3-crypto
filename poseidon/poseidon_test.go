@@ -41,6 +41,17 @@ func TestPoseidonHash(t *testing.T) {
 		h.String())
 }
 
+func TestBigIntPoseidonHash(t *testing.T) {
+	b0, ok := big.NewInt(0).SetString("69588426711107115100232500042334179657931174539151555867956034570704220523596", 10)
+	assert.True(t, ok)
+
+	h, err := Hash([]*big.Int{b0})
+	assert.Nil(t, err)
+	assert.Equal(t,
+		"17301542653460600976115435789627461515455895446166776549412913422670972634442",
+		h.String())
+}
+
 func TestErrorInputs(t *testing.T) {
 	b0 := big.NewInt(0)
 	b1 := big.NewInt(1)

@@ -52,7 +52,7 @@ func SkToBigInt(k *PrivateKey) *big.Int {
 	// pruneBuffer(&sBuf32)
 	s := new(big.Int)
 	utils.SetBigIntFromLEBytes(s, k[:])
-	s.Rsh(s, 3)
+	// s.Rsh(s, 3)
 	return s
 }
 

@@ -1,7 +1,7 @@
 package poseidon
 
 import (
-	"errors"
+	// "errors"
 	// "fmt"
 	"math/big"
 
@@ -62,9 +62,9 @@ func Hash(inpBI []*big.Int) (*big.Int, error) {
 	// if len(inpBI) == 0 || len(inpBI) >= len(NROUNDSP)-1 {
 	// 	return nil, fmt.Errorf("invalid inputs length %d, max %d", len(inpBI), len(NROUNDSP)-1)
 	// }
-	if !utils.CheckBigIntArrayInField(inpBI[:]) {
-		return nil, errors.New("inputs values not inside Finite Field")
-	}
+	// if !utils.CheckBigIntArrayInField(inpBI[:]) {
+	// 	return nil, errors.New("inputs values not inside Finite Field")
+	// }
 	inp := utils.BigIntArrayToElementArray(inpBI[:])
 	state := make([]*ff.Element, t)
 	state[t-1] = zero()
